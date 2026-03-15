@@ -1,0 +1,14 @@
+# === Python ===
+venv/
+*.py[cod]
+__pycache__/
+.env
+
+# === Django ===
+db.sqlite3
+staticfiles/
+media/
+
+# === OS Specific ===
+.DS_Store
+.directory

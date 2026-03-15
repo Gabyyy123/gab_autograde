@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Login | Gab Autograde AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { brand: '#4F46E5', brandHover: '#4338CA' }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4 sm:p-8">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md p-6 sm:p-10 transition-all">
+        
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Welcome Back</h1>
+            <p class="text-gray-500 mt-2 text-sm">Sign in to access your dashboard</p>
+        </div>
+
+        <form method="POST" action="{% url 'login' %}" class="space-y-6" id="loginForm">
+            {% csrf_token %}
+            
+            <div>
+                <label for="id_number" class="block text-sm font-medium text-gray-700">ID Number</label>
+                <input type="text" id="id_number" name="id_number" required 
+                    class="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-brand focus:border-brand sm:text-sm"
+                    placeholder="e.g. 2023-00145">
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <div class="relative mt-1">
+                    <input type="password" id="password" name="password" required 
+                        class="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm focus:ring-brand focus:border-brand sm:text-sm"
+                        placeholder="••••••••">
+                </div>
+            </div>
+
+            <button type="submit" 
+                class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand hover:bg-brandHover transition-colors">
+                Sign In
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-xs text-gray-400">
+            Don't have an account? Contact the system administrator to register.
+        </p>
+    </div>
+
+</body>
+</html>

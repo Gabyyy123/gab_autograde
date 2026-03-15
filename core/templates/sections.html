@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Sections{% endblock %}
+
+{% block content %}
+<div class="mb-8 flex justify-between items-center">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Sections & Students</h1>
+        <p class="text-gray-500 mt-1">Manage your classes and sync student lists.</p>
+    </div>
+    
+    <button onclick="openModal()" class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg shadow hover:bg-indigo-700 transition">
+        + Add New Section
+    </button>
+</div>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+    {% for section in sections %}
+    <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between">
+        <div class="mb-4">
+            <span class="inline-block px-2 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded mb-2">
+                {{ section.program }} • {{ section.year_level }}
+            </span>
+            <h2 class="text-xl font-bold text-gray-800">{{ section.subject }}</h2>
+            <p class="text-md font-medium text-gray-600 mt-1">Section: {{ section.name }}</p>
+            <p class="text-sm text-gray-500 mt-3"><i class="fas fa-user-graduate mr-2"></i>{{ section.students.count }} Students Enrolled</p>
+        </div>
+        
+        <div class="flex space-x-3 mt-4 border-t border-gray-100 pt-4">
+            <a href="{% url 'section_detail' section.id %}" class="flex-1 px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm font-medium text-center">
+                View List
+            </a>
+            <a href="{% url 'section_detail' section.id %}" class="flex-1 px-3 py-2 bg-green-50 text-green-700 border border-green-200 rounded-lg hover:bg-green-100 transition text-sm font-medium text-center">
+                <i class="fas fa-file-csv mr-1"></i> Sync CSV
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="md:col-span-2 xl:col-span-3 bg-white p-10 rounded-xl border border-gray-200 shadow-sm text-center">
+        <div class="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+            <i class="fas fa-users"></i>
+        </div>
+        <h3 class="text-lg font-bold text-gray-800">No Sections Yet</h3>
+        <p class="text-gray-500 mt-2">You haven't added any classes. Click the button above to get started.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<div id="sectionModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+            <h3 class="text-lg font-bold text-gray-900">Add New Section</h3>
+            <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <form method="POST" class="p-6 space-y-4">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Subject Name</label>
+                <input type="text" name="subject" required placeholder="e.g. IT101 or Purposive Comm" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Program</label>
+                    <input type="text" name="program" required placeholder="e.g. BSIT" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Year Level</label>
+                    <input type="text" name="year_level" required placeholder="e.g. 3rd Year" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Section Name/Block</label>
+                <input type="text" name="name" required placeholder="e.g. A or 3A" class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+            </div>
+
+            <div class="pt-4 flex space-x-3">
+                <button type="button" onclick="closeModal()" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">Cancel</button>
+                <button type="submit" class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">Save Section</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('sectionModal');
+    
+    function openModal() {
+        modal.classList.remove('hidden');
+    }
+    
+    function closeModal() {
+        modal.classList.add('hidden');
+    }
+
+    // Close modal if clicking outside the white box
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            closeModal();
+        }
+    }   
+</script>
+{% endblock %}

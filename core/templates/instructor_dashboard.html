@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Instructor Overview{% endblock %}
+
+{% block content %}
+    <div class="mb-8 flex justify-between items-center">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Welcome, Instructor {{ request.user.last_name }}</h1>
+            <p class="text-gray-500 mt-1">Here is what is happening in your classes today.</p>
+        </div>
+        <button class="bg-indigo-600 text-white px-5 py-2.5 rounded-lg shadow hover:bg-indigo-700 transition">
+            + New Assessment
+        </button>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <h3 class="text-gray-500 text-sm font-medium">Active Assessments</h3>
+            <p class="text-3xl font-bold mt-2 text-indigo-600">0</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <h3 class="text-gray-500 text-sm font-medium">Total Students</h3>
+            <p class="text-3xl font-bold mt-2 text-indigo-600">0</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <h3 class="text-gray-500 text-sm font-medium">Recent Scans</h3>
+            <p class="text-3xl font-bold mt-2 text-indigo-600">0</p>
+        </div>
+    </div>
+{% endblock %}

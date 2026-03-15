@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Print - {{ assessment.title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white; }
+            .print-border { border-color: black !important; }
+        }
+        .bubble {
+            width: 20px; height: 20px; border: 1px solid black; border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 10px; margin-right: 8px; color: gray;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8 text-black font-sans max-w-4xl mx-auto">
+
+    <div class="no-print mb-8 flex justify-between items-center bg-white p-4 rounded-lg shadow">
+        <a href="{% url 'instructor_assessments' %}" class="text-blue-600 hover:underline">&larr; Back to Assessments</a>
+        <button onclick="window.print()" class="bg-indigo-600 text-white px-6 py-2 rounded shadow hover:bg-indigo-700">Print Blank Forms</button>
+    </div>
+
+   <div class="bg-white p-10 shadow-lg print:shadow-none print:p-0">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold uppercase">{{ assessment.section.subject }}</h1>
+            <h2 class="text-lg font-semibold text-gray-700">{{ assessment.title }}</h2>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 border-2 border-gray-400 print-border p-4 mb-8">
+            <div class="space-y-4">
+                <div class="flex items-end"><span class="font-bold mr-2 whitespace-nowrap">Name:</span><div class="border-b border-black flex-1"></div></div>
+                <div class="flex items-end"><span class="font-bold mr-2 whitespace-nowrap">Student ID:</span><div class="border-b border-black flex-1"></div></div>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-end"><span class="font-bold mr-2 whitespace-nowrap">Program & Level:</span><div class="border-b border-black flex-1"></div></div>
+                <div class="flex items-end"><span class="font-bold mr-2 whitespace-nowrap">Section:</span><div class="border-b border-black flex-1"></div></div>
+            </div>
+        </div>
+
+        {% for section in assessment.exam_sections.all %}
+            <div class="mb-8">
+                <h3 class="font-bold text-lg mb-2 border-b border-gray-300 pb-1">{{ section.title }}</h3>
+                
+                {% if section.section_type == 'Multiple Choice' %}
+                    <p class="text-sm italic mb-4">Shade the circle corresponding to the correct answer completely.</p>
+                    <div class="grid grid-cols-2 gap-y-3 gap-x-8">
+                        {% for question in section.questions.all %}
+                        <div class="flex items-center">
+                            <span class="w-6 font-bold">{{ forloop.counter }}.</span>
+                            <div class="bubble">A</div><div class="bubble">B</div><div class="bubble">C</div><div class="bubble">D</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                
+                {% elif section.section_type == 'Identification' %}
+                    <p class="text-sm italic mb-4">Write your answer clearly on the line provided.</p>
+                    <div class="space-y-6 mt-4">
+                        {% for question in section.questions.all %}
+                        <div class="flex">
+                            <span class="font-bold mr-2 w-6">{{ forloop.counter }}.</span>
+                            <div class="border-b border-black flex-1"></div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                
+                {% else %}
+                    <p class="text-sm italic mb-4">Write your essay clearly in the space provided.</p>
+                    <div class="space-y-6 mt-4">
+                        {% for question in section.questions.all %}
+                        <div class="mb-8">
+                            <p class="font-bold text-sm mb-4">{{ forloop.counter }}. {{ question.text }}</p>
+                            <div class="border-b border-black w-full mb-6"></div>
+                            <div class="border-b border-black w-full mb-6"></div>
+                            <div class="border-b border-black w-full mb-6"></div>
+                            <div class="border-b border-black w-full mb-6"></div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        {% empty %}
+            <div class="text-center p-10 border-2 border-dashed border-gray-300 rounded text-gray-500">
+                No sections defined. Go to the "Build" page to add questions to this exam!
+            </div>
+        {% endfor %}
+    </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

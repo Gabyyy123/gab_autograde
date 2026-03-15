@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Build Exam - {{ assessment.title }}{% endblock %}
+
+{% block content %}
+<form method="POST" id="examForm">
+    {% csrf_token %}
+    <input type="hidden" name="exam_data" id="examDataInput">
+
+    <div class="mb-6 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <a href="{% url 'instructor_assessments' %}" class="text-gray-400 hover:text-indigo-600 transition">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </a>
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Define Structure & Questions</h1>
+                <p class="text-sm text-gray-500 mt-1">{{ assessment.title }} • {{ assessment.section.subject }}</p>
+            </div>
+        </div>
+        
+        <button type="button" onclick="saveExam()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg shadow hover:bg-indigo-700 transition font-medium">
+            Save & Finish
+        </button>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 lg:p-8">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800">Exam Sections</h2>
+            
+            <div class="flex items-center space-x-2">
+                <select id="newSectionType" class="border border-gray-300 rounded-lg text-sm px-3 py-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                    <option value="Multiple Choice">Multiple Choice</option>
+                    <option value="Identification">Identification</option>
+                    <option value="Essay">Essay</option>
+                </select>
+                <button type="button" onclick="addSection()" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 text-sm font-medium">
+                    <i class="fas fa-plus mr-2"></i> Add Section
+                </button>
+            </div>
+        </div>
+
+        <div id="exam-builder-container">
+            <div class="exam-section border border-gray-200 rounded-lg mb-8 bg-gray-50 p-4 relative" data-type="Multiple Choice">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-200">
+                    <input type="text" value="Section A: Multiple Choice" class="section-title font-bold text-gray-800 bg-transparent border-none focus:ring-0 p-0 text-lg w-2/3" />
+                    <button type="button" onclick="this.closest('.exam-section').remove()" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                </div>
+                
+                <div class="questions-container">
+                    <div class="bg-white p-4 rounded border border-gray-200 shadow-sm mb-4 question-block relative">
+                        <button type="button" onclick="this.closest('.question-block').remove()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+                        <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Multiple Choice Question</label>
+                        <textarea rows="2" class="question-input w-full px-3 py-2 border border-gray-300 rounded mb-3 text-sm focus:ring-indigo-500" placeholder="Enter question text..."></textarea>
+                    </div>
+                </div>
+                
+                <button type="button" onclick="addQuestion(this, 'Multiple Choice')" class="text-indigo-600 text-sm font-medium hover:text-indigo-800 mt-2"><i class="fas fa-plus mr-1"></i> Add Question</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    // Generates the HTML for a question, giving unique IDs to radio buttons so they group properly
+    function getQuestionHTML(type) {
+        // Create a random ID for the radio buttons so each question works independently
+        const qId = 'q_' + Math.floor(Math.random() * 100000); 
+        
+        if (type === 'Multiple Choice') {
+            return `
+                <div class="bg-white p-4 rounded border border-gray-200 shadow-sm mb-4 question-block relative">
+                    <button type="button" onclick="this.closest('.question-block').remove()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Multiple Choice Question</label>
+                    <textarea rows="2" class="question-text w-full px-3 py-2 border border-gray-300 rounded mb-3 text-sm focus:ring-indigo-500" placeholder="Enter question text..."></textarea>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-3">
+                        <div class="flex items-center space-x-2"><input type="radio" name="${qId}" class="is-correct text-indigo-600" checked><input type="text" class="choice-text w-full px-3 py-2 border border-gray-300 rounded text-sm" placeholder="Choice A"></div>
+                        <div class="flex items-center space-x-2"><input type="radio" name="${qId}" class="is-correct text-indigo-600"><input type="text" class="choice-text w-full px-3 py-2 border border-gray-300 rounded text-sm" placeholder="Choice B"></div>
+                        <div class="flex items-center space-x-2"><input type="radio" name="${qId}" class="is-correct text-indigo-600"><input type="text" class="choice-text w-full px-3 py-2 border border-gray-300 rounded text-sm" placeholder="Choice C"></div>
+                        <div class="flex items-center space-x-2"><input type="radio" name="${qId}" class="is-correct text-indigo-600"><input type="text" class="choice-text w-full px-3 py-2 border border-gray-300 rounded text-sm" placeholder="Choice D"></div>
+                    </div>
+                </div>`;
+        } else if (type === 'Identification') {
+            return `
+                <div class="bg-white p-4 rounded border border-gray-200 shadow-sm mb-4 question-block relative">
+                    <button type="button" onclick="this.closest('.question-block').remove()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Identification Question</label>
+                    <input type="text" class="question-text w-full px-3 py-2 border border-gray-300 rounded mb-3 text-sm focus:ring-indigo-500" placeholder="Enter the question or term definition...">
+                    
+                    <label class="block text-xs font-bold text-green-600 mb-1"><i class="fas fa-key mr-1"></i> Answer Key</label>
+                    <input type="text" class="choice-text w-full px-3 py-2 border border-green-300 bg-green-50 rounded text-sm focus:ring-green-500" placeholder="Type the exact correct answer here...">
+                </div>`;
+        } else {
+            return `
+                <div class="bg-white p-4 rounded border border-gray-200 shadow-sm mb-4 question-block relative">
+                    <button type="button" onclick="this.closest('.question-block').remove()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+                    <label class="block text-xs font-bold text-gray-500 mb-2 uppercase">Essay Prompt</label>
+                    <textarea rows="2" class="question-text w-full px-3 py-2 border border-gray-300 rounded mb-3 text-sm focus:ring-indigo-500" placeholder="Enter your prompt..."></textarea>
+                    
+                    <label class="block text-xs font-bold text-indigo-600 mb-1"><i class="fas fa-robot mr-1"></i> AI Grading Instructions</label>
+                    <textarea rows="2" class="choice-text w-full px-3 py-2 border border-indigo-200 rounded bg-indigo-50 text-sm focus:ring-indigo-500" placeholder="Tell the AI what concepts to look for..."></textarea>
+                </div>`;
+        }
+    }
+
+    function addQuestion(buttonElement, type) {
+        const container = buttonElement.previousElementSibling; 
+        container.insertAdjacentHTML('beforeend', getQuestionHTML(type));
+    }
+
+    function addSection() {
+        const type = document.getElementById('newSectionType').value;
+        const container = document.getElementById('exam-builder-container');
+        
+        const sectionHTML = `
+            <div class="exam-section border border-gray-200 rounded-lg mb-8 bg-gray-50 p-4 relative" data-type="${type}">
+                <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-200">
+                    <input type="text" value="New Section (${type})" class="section-title font-bold text-gray-800 bg-transparent border-none focus:ring-0 p-0 text-lg w-2/3" />
+                    <button type="button" onclick="this.closest('.exam-section').remove()" class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                </div>
+                <div class="questions-container">${getQuestionHTML(type)}</div>
+                <button type="button" onclick="addQuestion(this, '${type}')" class="text-indigo-600 text-sm font-medium hover:text-indigo-800 mt-2"><i class="fas fa-plus mr-1"></i> Add Question</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', sectionHTML);
+    }
+
+    // Gathers ALL data (Questions, Choices, and Correct Answers) to send to Python
+    function saveExam() {
+        const examData = [];
+        
+        document.querySelectorAll('.exam-section').forEach((sectionDiv) => {
+            const title = sectionDiv.querySelector('.section-title').value;
+            const type = sectionDiv.getAttribute('data-type');
+            const questions = [];
+            
+            sectionDiv.querySelectorAll('.question-block').forEach((qBlock) => {
+                const qText = qBlock.querySelector('.question-text').value.trim();
+                
+                if(qText !== '') {
+                    const choices = [];
+                    
+                    if (type === 'Multiple Choice') {
+                        // Gather all 4 choices and check which radio button is selected
+                        qBlock.querySelectorAll('.flex.items-center').forEach((choiceDiv) => {
+                            const cText = choiceDiv.querySelector('.choice-text').value.trim();
+                            const isCorrect = choiceDiv.querySelector('.is-correct').checked;
+                            choices.push({ text: cText, is_correct: isCorrect });
+                        });
+                    } else {
+                        // For Identification/Essay, save the Answer Key as the "correct choice"
+                        const cText = qBlock.querySelector('.choice-text').value.trim();
+                        choices.push({ text: cText, is_correct: true }); 
+                    }
+                    
+                    questions.push({ text: qText, choices: choices });
+                }
+            });
+            
+            examData.push({ title: title, type: type, questions: questions });
+        });
+        
+        document.getElementById('examDataInput').value = JSON.stringify(examData);
+        document.getElementById('examForm').submit();
+    }
+</script>
+{% endblock %}
