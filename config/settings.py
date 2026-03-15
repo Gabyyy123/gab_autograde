@@ -27,9 +27,14 @@ SECRET_KEY = 'django-insecure-@j8)dco)%0rp2qz_7!*b=1p5-ce#0+=07a9)c!)(m8e%0t0fyz
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['gab-autograde.onrender.com', 'localhost', '127.0.0.1']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://gab-autograde.onrender.com'
+]
 
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 # Application definition
 
 INSTALLED_APPS = [
