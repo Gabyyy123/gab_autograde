@@ -33,6 +33,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://gab-autograde.onrender.com'
 ]
 
+# Tell Django to trust Render's Proxy headers for HTTPS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 # Application definition
@@ -132,14 +135,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Temporary Admin Creator for first-time deployment
-from django.db.models.signals import post_migrate
-from django.contrib.auth import get_user_model
-
+# Updated auto-admin creator (Replace your previous one at the bottom of settings.py)
 def create_admin(sender, **kwargs):
     User = get_user_model()
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@example.com', 'AdminPass123!')
-        print("Superuser 'admin' created with password 'AdminPass123!'")
-
-post_migrate.connect(create_admin)
+    # This will update the password of 'admin' every time the server starts
+    admin_user, created = User.objects.get_or_create(username='admin', defaults={'email': 'admin@example.com'})
+    admin_user.set_password('AdminPass123!')
+    admin_user.is_superuser = True
+    admin_user.is_staff = True
+    admin_user.save()
+    print("DEBUG: Admin account synchronized.")
