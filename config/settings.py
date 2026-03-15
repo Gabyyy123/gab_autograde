@@ -126,3 +126,15 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Temporary Admin Creator for first-time deployment
+from django.db.models.signals import post_migrate
+from django.contrib.auth import get_user_model
+
+def create_admin(sender, **kwargs):
+    User = get_user_model()
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@example.com', 'AdminPass123!')
+        print("Superuser 'admin' created with password 'AdminPass123!'")
+
+post_migrate.connect(create_admin)

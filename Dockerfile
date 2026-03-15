@@ -22,8 +22,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 6. Copy the rest of your project code into the container
 COPY . /app/
 
-# 7. Collect static files (for Whitenoise)
-RUN python manage.py collectstatic --noinput
+# Give the script permission to run
+RUN chmod +x /app/start.sh
 
-# 8. Run the application using Gunicorn (Matches your Procfile!)
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Run the script when the container starts
+CMD ["/app/start.sh"]
