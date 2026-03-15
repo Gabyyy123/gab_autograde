@@ -84,11 +84,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+import dj_database_url
+import os
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        # Use the Render DATABASE_URL if available, otherwise use local SQLite
+        default=os.getenv('DATABASE_URL', f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}"),
+        conn_max_age=600
+    )
 }
 
 
@@ -135,13 +139,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-from django.db.models.signals import post_migrate
-from django.contrib.auth import get_user_model
-
-def create_admin(sender, **kwargs):
-    User = get_user_model()
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@example.com', 'AdminPass123!')
-        print("DEBUG: Superuser 'admin' created successfully.")
-
-post_migrate.connect(create_admin)
