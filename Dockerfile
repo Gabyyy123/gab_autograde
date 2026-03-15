@@ -25,5 +25,5 @@ COPY . /app/
 # Give the script permission to run
 RUN chmod +x /app/start.sh
 
-# Run the script when the container starts
+# Use the script to start the container
 CMD ["/app/start.sh"]

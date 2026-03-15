@@ -135,13 +135,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Updated auto-admin creator (Replace your previous one at the bottom of settings.py)
+from django.db.models.signals import post_migrate
+from django.contrib.auth import get_user_model
+
 def create_admin(sender, **kwargs):
     User = get_user_model()
-    # This will update the password of 'admin' every time the server starts
-    admin_user, created = User.objects.get_or_create(username='admin', defaults={'email': 'admin@example.com'})
-    admin_user.set_password('AdminPass123!')
-    admin_user.is_superuser = True
-    admin_user.is_staff = True
-    admin_user.save()
-    print("DEBUG: Admin account synchronized.")
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@example.com', 'AdminPass123!')
+        print("DEBUG: Superuser 'admin' created successfully.")
+
+post_migrate.connect(create_admin)
