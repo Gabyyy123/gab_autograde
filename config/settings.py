@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-@j8)dco)%0rp2qz_7!*b=1p5-ce#0+=07a9)c!)(m8e%0t0fyz'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['gab-autograde.onrender.com', 'localhost', '127.0.0.1']
 
